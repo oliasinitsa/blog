@@ -1,0 +1,193 @@
+﻿@using System.ServiceModel.Configuration
+@using Microsoft.AspNet.Identity
+@model Blog.ViewModel.PostViewModel
+@{
+    ViewBag.Title = "PostView";
+}
+
+
+    <div class="row-fluid">
+        @Html.Action("ThreeLastPosts", "Home")
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h1>@Model.PostName
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <small class="pull-right">
+                                
+                                @Html.ActionLink(" ", "ChangePost", "Post", new { id = @Model.Post.Id }, new { @class = "glyphicon glyphicon-edit" })
+                                @Html.ActionLink(" ", "DeletePost", "Post", new { id = @Model.Post.Id }, new { @class = "glyphicon glyphicon-remove" })
+                                
+                            </small>
+                        } 
+                    </h1>
+
+                    <p><small class="text-muted">Опубликован @Model.Post.Changed
+                        
+                        </small>
+                                          
+                    </p>
+                    <hr/>
+                    <p>@Model.PostText</p>
+                    <p>
+                        @foreach (var tag in Model.TagsPost)
+                        {
+                            <a class="btn btn-warning btn-small">
+                                #@tag
+                            </a>
+                        }
+                    </p>
+                    <p><i data-id="@Model.Post.Id" class="votesPost glyphicon glyphicon-heart">@Model.VotesValue</i></p>
+                </div>
+            </div>
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h1>Комментарии</h1>
+                </div>
+                <div class="panel-body">
+                    <div class="well">
+                       
+                            <div class="form-group">
+                                <textarea id="commentText" class="form-control" rows="3">Ur comment</textarea>
+                            </div>
+                            <div class="form-group">
+                                <button id="addComment" type="submit" class="btn">Submit</button>
+                            </div>
+                        
+                    </div>
+                    <div class="panel panel-success">
+                        <div class="panel-heading">
+                            <p>Последние комментарии</p>
+                        </div>
+                        <div id="blockComment" class="panel-body">            
+                            <div id="viewComment">
+                            </div>
+                            <div id="commentsPage">
+                                @Html.Partial("_CommentPagePartial", Model.pageViewModel)
+                            </div>
+
+                          </div>
+                        <div class="panel-footer" style="text-align: center;">
+                            @if (Model.pageViewModel.CurrentPage != Model.pageViewModel.PageNumber)
+                            {
+                                <button class="btn btn-success" id="scrool">Загрузить еще комментарии</button>
+                            }
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            @Html.Action("ThreeLastComments", "Home")
+        </div>
+    </div>
+
+@section scripts
+{
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $('#scrool').click(function() {
+            var page = $('.row #page').last().data('page') + 1;
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("PostViewComment", "Post")",
+                data: "id=" + @Model.Post.Id + "&page=" + page,
+                    success: function(data) {
+                        
+                        $('#blockComment').append($(data));
+                        if (page < ( @Model.pageViewModel.PageNumber)) {
+                            $('#scrool').addClass('hidden');
+                        }
+                    }
+                });
+            });
+            $('.lastComments').click(function() {
+                var id = $(this).data('id');
+                $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("VoteComment", "Vote")",
+                data: "id=" + id + "",
+                success: function(data) {
+                    $(".lastComments[data-id=" + id + "]").text(data);
+                    $(".votesComment[data-id=" + id + "]").text(data);
+                }
+            });
+        });
+        $('.lastPosts').click(function() {
+            var id = $(this).data('id');
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("VotePost", "Vote")",
+                data: "id=" + id + "",
+                success: function(data) {
+                    $(".lastPosts[data-id=" + id + "]").text(data);
+                    $(".votesPost[data-id=" + id + "]").text(data);
+                }
+            });
+        });
+        $('.votesPost').click(function() {
+            var id = $(this).data('id');
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("VotePost", "Vote")",
+                data: "id=" + id + "",
+                success: function(data) {
+                    $(".votesPost[data-id=" + id + "]").text(data);
+                    $(".lastPosts[data-id=" + id + "]").text(data);
+                }
+            });
+        });
+        $('.votesComment').click(function() {
+            var id = $(this).data('id');
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("VoteComment", "Vote")",
+                data: "id=" + id + "",
+                success: function(data) {
+                    $(".votesComment[data-id=" + id + "]").text(data);
+                    $(".lastComments[data-id=" + id + "]").text(data);
+                }
+            });
+        });
+        $('button#addComment').click(function() {
+            var textC = $('textarea#commentText').val();
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("AddComment", "Post")",
+                data: {
+                    id: @Model.Post.Id,
+                    text: textC
+                },
+                success: function() {
+
+                }
+            }).done(function() {
+                $("div#viewComment").html('<div class="well">' +
+                    ' <h3>@User.Identity.Name</h3>' +
+                    '<p>' + textC + '</p>' +
+                    '<p><small>Опубликован Только что</small><i id="likeComment" class="pull-right glyphicon glyphicon-heart">0</i></p>' +
+                    '</div>');
+                $('textarea#commentText').text("Ur comment");
+            });
+
+        });
+        $("textarea#commentText").click(function() {
+            $('textarea#commentText').text("");
+        });
+        $('i.removeComment').click(function() {
+            var id = $(this).data('id');
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("DeleteComment", "Post")",
+                data: "id=" + id,
+                success: function() {
+
+                }
+            });
+            $("div.userComment[data-id=" + id + "]").html("Ваш комментарий был удалён");
+        });
+    });
+    </script>
+}

@@ -1,0 +1,8 @@
+﻿@model List<Blog.Models.Tag>
+           
+<div id="taglist" class="taglist">
+    @for (int i = 0; i < Model.Count(); i++)
+    {
+        <a href="@Url.Action("SearchNyTag", "Search", new { tagId = Model[i].Id})" class ="tag @String.Format("tag{0}", i/2)">@String.Format("{0} [{1}]", Model[i].Text, Model[i].Posts.Count)</a>
+    }
+</div>

@@ -1,0 +1,36 @@
+﻿@model Blog.ViewModel.PageViewModel<Blog.ViewModel.PostViewModel>
+
+@foreach (var post in Model.Data)
+{
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="well hero-init">
+                    <p>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="text-muted pull-right">
+                                <i class="glyphicon glyphicon-edit"></i>
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </div>
+                        }
+                </p>
+                <h3>
+                    @post.PostName
+
+            </h3>
+            <hr />
+            <p>@post.PostText.Substring(0, 200)</p>
+            <small><i data-id="@post.Post.Id" class="votesPost glyphicon glyphicon-heart">@post.VotesValue</i></small>
+            <p><small class="pull-right">Publishing 12.11.2014 11:13</small></p>
+            <p>
+                @Html.ActionLink("Читать далее", "PostView", "Post", new { id = @post.Post.Id }, new { @class = "btn btn-success btn-large" })
+            </p>
+        </div>
+
+    </div>
+</div>
+</div>
+}
+<div id="page" class="hidden" data-page="@Model.CurrentPage"></div>
+

@@ -1,0 +1,19 @@
+﻿@using Microsoft.AspNet.Identity
+@model Blog.ViewModel.PageViewModel<Blog.Models.Comment>
+           
+@foreach (var comment in Model.Data)
+{
+    <div data-id="@comment.Id" class="userComment well">
+        <h3>
+            @comment.User.UserName
+        @if (comment.UserId == User.Identity.GetUserId())
+        {
+            <small class="pull-right"><i data-id="@comment.Id" class="removeComment glyphicon glyphicon-remove"></i></small>
+        }
+    </h3>
+    <p>@comment.Text</p>
+    <p><small>Опубликован @comment.Created</small><i data-id="@comment.Id" class="votesComment pull-right glyphicon glyphicon-heart">@comment.Votes.Sum(vote => vote.Value)</i></p>
+</div>
+}
+<div id="page" class="hidden" data-page="@Model.CurrentPage"></div>
+

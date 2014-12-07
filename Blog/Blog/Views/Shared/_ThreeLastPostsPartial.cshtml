@@ -1,0 +1,26 @@
+﻿@model IEnumerable<Blog.ViewModel.PostViewModel>
+
+<div class="col-md-3">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3>Последние посты</h3>
+        </div>
+        <div class="panel-body">
+            @foreach (var post in Model)
+            {
+                <div class="well hero-init">
+                    <h3>@post.PostName</h3>
+                    <p>
+                        @post.PostText.Substring(0, 50)
+                    </p>
+                    <small><i data-id="@post.Post.Id" class="lastPosts glyphicon glyphicon-heart">@post.VotesValue</i></small>
+                    <p><small class="pull-right">Опубликован @post.Post.Changed</small></p>
+                    <p>
+                        @Html.ActionLink("Читать далее", "PostView", "Post", new { id = @post.Post.Id }, new { @class = "btn btn-info btn-large" })
+                    </p>
+                </div>
+            }
+        </div>
+        
+    </div>
+</div>

@@ -1,0 +1,76 @@
+﻿@model Blog.Models.Post
+@{
+    ViewBag.Title = "Редактирование поста";
+}
+
+
+    <div class="row-fluid">
+        @Html.Action("ThreeLastPosts", "Home")
+        <div class="col-md-6">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3>
+                        Редактирование поста
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    @using (Html.BeginForm("Add", "Post", FormMethod.Post, new { @role = "form", @class = "form-horizantal" }))
+                    {
+                        @Html.ValidationSummary()
+                        @Html.AntiForgeryToken()
+                        <div class="form-group">
+                            @Html.LabelFor(a => a.Title)
+                            @Html.TextBoxFor(a => a.Title, @Model.Title, new { @class = "form-control" })
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(a => a.Text)
+                            @Html.TextAreaFor(a => a.Text, 20, 20, new { @class = "form-control" })
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tagsString">Теги </label>
+                            @Html.TextBoxFor(a => a.tag, null, new { @class = "form-control" })
+                        </div>
+
+                        <div class="form-group">
+                            <input type="submit" class="btn btn-primary" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            @Html.Action("ThreeLastComments", "Home")
+        </div>
+    </div>
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.lastComments').click(function () {
+                var id = $(this).data('id');
+                $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("VoteComment", "Vote")",
+                    data: "id=" + id + "",
+                    success: function(data) {
+                        $(".lastComments[data-id="+ id + "]").text(data);
+                    }
+                });
+            });
+            $('.lastPosts').click(function() {
+                var id = $(this).data('id');
+                $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("VotePost", "Vote")",
+                    data: "id=" + id + "",
+                    success: function(data) {
+                        $(".lastPosts[data-id=" + id + "]").text(data);
+                    }
+                });
+            });
+            
+        });
+    </script>
+}
